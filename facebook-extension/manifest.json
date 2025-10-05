@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Facebook Scam Detector",
+  "version": "1.0",
+  "description": "Mocked scam detector for Facebook comments",
+  "permissions": ["activeTab"],
+  "host_permissions": ["https://www.facebook.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.facebook.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}
