@@ -1,10 +1,10 @@
-// Mocked Facebook Scam Detector Content Script
 
-// Global overlay element to block background interaction
+
+
 let overlay = null;
 let currentPopup = null;
 
-// Nowa, bogatsza lista analiz
+
 const detailedAnalyses = [
   {
     text: "Wiek konta: Utworzone niedawno (mniej niż 3 miesiące).",
@@ -68,7 +68,7 @@ function createOverlay() {
     overlay.className = 'scam-overlay';
     document.body.appendChild(overlay);
     
-    // Click on overlay removes the popup
+    
     overlay.addEventListener('click', removePopup);
   }
 }
@@ -85,15 +85,15 @@ function removePopup() {
 }
 
 function showPopup(badge, label, emoji, explanation, rating, colorClass) {
-  // If a popup is already open, close it first
+  
   if (currentPopup) {
     removePopup();
   }
   
-  // 1. Create overlay
+  
   createOverlay();
 
-  // 2. Create and position popup
+  
   const popup = document.createElement('div');
   popup.className = 'scam-popup';
   popup.style.display = 'block';
@@ -102,7 +102,7 @@ function showPopup(badge, label, emoji, explanation, rating, colorClass) {
   const progressClass = colorClass.replace('scam-', '');
   const botProbability = rating * 20;
   
-  // Generowanie listy analiz
+  
   const analysisHtml = detailedAnalyses
     .filter(a => a.condition(rating))
     .map(a => `<li class="${a.type}">
@@ -135,14 +135,14 @@ function showPopup(badge, label, emoji, explanation, rating, colorClass) {
 }
 
 function addScamBadge(commentElement) {
-  // Find the comment container
+  
   const commentContainer = commentElement.closest('[data-testid="UFI2Comment"]') ||
                            commentElement.closest('[role="article"]') ||
                            commentElement.parentElement;
 
-  if (commentContainer.querySelector('.scam-badge')) return; // Avoid duplicates
+  if (commentContainer.querySelector('.scam-badge')) return; 
 
-  // Find the user name element
+  
   const actorSelectors = [
     '[data-testid="UFI2Comment/actor"]',
     'a[href*="/profile.php"]',
@@ -155,9 +155,9 @@ function addScamBadge(commentElement) {
     actorElement = commentContainer.querySelector(sel);
     if (actorElement) break;
   }
-  if (!actorElement) return; // No actor found, skip
+  if (!actorElement) return; 
 
-  const rating = Math.floor(Math.random() * 5) + 1; // Random 1-5
+  const rating = Math.floor(Math.random() * 5) + 1; 
   const explanations = [
     "Konto utworzone niedawno, zwiększone ryzyko oszustwa.",
     "Komentarz zawiera podejrzane linki prowadzące do phishingu.",
@@ -168,20 +168,20 @@ function addScamBadge(commentElement) {
   ];
   const explanation = explanations[Math.floor(Math.random() * explanations.length)];
 
-  // Losowanie statusu: 1/5 (20%) na Trolla, 2/5 (40%) na Bota, 1/5 (20%) na Nie Wiem, 1/5 (20%) na Legit
-  const statusRoll = Math.floor(Math.random() * 5); // 0, 1, 2, 3, 4
-  let finalRating; // Używamy innej nazwy, aby uniknąć konfliktu z ratingiem losowanym wcześniej
+  
+  const statusRoll = Math.floor(Math.random() * 5); 
+  let finalRating; 
 
   let label, emoji, colorClass, highlightClass;
 
-  if (statusRoll === 0) { // 20% szans
+  if (statusRoll === 0) { 
       label = 'Russian Troll';
-      emoji = '🔥'; // Zmienione na Ogień
+      emoji = '🔥'; 
       colorClass = 'scam-troll';
       highlightClass = 'scam-highlight-troll';
-      finalRating = 5; // Najwyższe prawdopodobieństwo bota
+      finalRating = 5; 
   } else {
-      finalRating = rating; // Używamy ratingu z losowania 1-5
+      finalRating = rating; 
       
       if (finalRating <= 2) {
           label = 'Legit';
@@ -205,33 +205,33 @@ function addScamBadge(commentElement) {
   badge.className = `scam-badge ${colorClass}`;
   badge.innerHTML = emoji;
   
-  // Add event listeners for popup and overlay
-  // Używamy click, aby pop-up był stabilny i można było go zamknąć kliknięciem w overlay
+  
+  
   badge.addEventListener('click', (e) => {
-    e.preventDefault(); // Zablokuj domyślne działanie (np. przejście do linku)
-    e.stopPropagation(); // Zablokuj propagację do nadrzędnych elementów
+    e.preventDefault(); 
+    e.stopPropagation(); 
     showPopup(badge, label, emoji, explanation, finalRating, colorClass);
   });
   
-  // Dodajemy podświetlenie komentarza
+  
   commentContainer.classList.add(highlightClass);
 
-  // 1. Tworzymy kontener Flexbox
+  
   const wrapper = document.createElement('span');
   wrapper.style.display = 'inline-flex';
   wrapper.style.alignItems = 'center';
-  wrapper.style.gap = '5px'; // Mały odstęp
+  wrapper.style.gap = '5px'; 
 
-  // 2. Wstawiamy wrapper w miejsce actorElement
+  
   actorElement.parentNode.insertBefore(wrapper, actorElement);
 
-  // 3. Przenosimy actorElement i badge do wrappera
+  
   wrapper.appendChild(actorElement);
   wrapper.appendChild(badge);
 }
 
 function scanComments() {
-  // Facebook comment selectors (may need adjustment based on FB updates)
+  
   const commentSelectors = [
     '[data-testid="UFI2Comment/body"]',
     '[data-testid="comment"]',
@@ -248,9 +248,9 @@ function scanComments() {
   });
 }
 
-// Initial scan
+
 scanComments();
 
-// Observe for new comments
+
 const observer = new MutationObserver(scanComments);
 observer.observe(document.body, { childList: true, subtree: true });

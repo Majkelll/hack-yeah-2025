@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThumbsUp, MessageCircle, Share2, AlertTriangle, CheckCircle, AlertCircle, UserX } from 'lucide-react';
 
-// Type definitions
+
 interface Evidence {
   type: string;
   value: string | number;
@@ -36,14 +36,14 @@ interface Post {
   shares: number;
 }
 
-// Bot detection heuristics engine
+
 const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis => {
    const reasons: string[] = [];
    const evidence: Evidence[] = [];
    let score = 0;
    let label: 'OK' | 'Podejrzany' | 'Bot' | 'Troll' = 'OK';
 
-  // Heuristic 1: Missing avatar
+  
   if (comment.avatarMissing) {
     score += 15;
     reasons.push('Brak zdjęcia profilowego');
@@ -54,7 +54,7 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
     });
   }
 
-  // Heuristic 2: Username patterns (random numbers)
+  
   const digitCount = (comment.username.match(/\d/g) || []).length;
   if (digitCount >= 4) {
     score += 20;
@@ -66,7 +66,7 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
     });
   }
 
-  // Heuristic 3: Account age (simulated)
+  
   const accountAgeDays = Math.floor(Math.random() * 1000);
   if (accountAgeDays < 30) {
     score += 25;
@@ -78,7 +78,7 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
     });
   }
 
-  // Heuristic 4: Duplicate content
+  
   const duplicateCount = allComments.filter(c => c.content === comment.content).length;
   if (duplicateCount > 1) {
     score += 30;
@@ -90,7 +90,7 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
     });
   }
 
-  // Heuristic 5: Comment length extremes
+  
   if (comment.content.length < 10) {
     score += 10;
     reasons.push('Bardzo krótki komentarz (spam)');
@@ -109,7 +109,7 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
     });
   }
 
-  // Heuristic 6: Suspicious keywords
+  
   const suspiciousKeywords = ['kup teraz', 'kliknij tutaj', 'zarabiaj', 'darmowe', 'pilne', 'natychmiast'];
   const foundKeywords = suspiciousKeywords.filter(kw => comment.content.toLowerCase().includes(kw));
   if (foundKeywords.length > 0) {
@@ -122,8 +122,8 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
     });
   }
 
-  // Heuristic 7: External links
-  const linkCount = (comment.content.match(/https?:\/\//g) || []).length;
+  
+  const linkCount = (comment.content.match(/https?:\/\
   if (linkCount > 0) {
     score += 15 * linkCount;
     reasons.push('Zawiera zewnętrzne linki');
@@ -134,11 +134,11 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
     });
   }
 
-  // Heuristic 8: Burst activity (timestamp clustering)
+  
   const commentTime = new Date(comment.createdAt).getTime();
   const nearbyComments = allComments.filter(c => {
     const diff = Math.abs(new Date(c.createdAt).getTime() - commentTime);
-    return diff < 60000; // within 1 minute
+    return diff < 60000; 
   }).length;
   if (nearbyComments > 3) {
     score += 20;
@@ -150,7 +150,7 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
     });
   }
 
-   // Heuristic 9: Generic responses
+   
    const genericPhrases = ['tak', 'nie', 'zgadzam się', 'dokładnie', 'prawda', '👍', '🔥'];
    if (genericPhrases.some(phrase => comment.content.toLowerCase().trim() === phrase)) {
      score += 15;
@@ -162,7 +162,7 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
      });
    }
 
-   // Heuristic 10: Conspiracy theory keywords
+   
    const conspiracyKeywords = ['spisek', 'spiskowa', 'kontrola', 'reset', 'wielki reset', 'korporacje', 'rządy', 'manipulacja', 'teoria spiskowa', 'prawda ukryta', 'alarm', 'obudźcie się', 'prawdą'];
    const foundConspiracy = conspiracyKeywords.filter(kw => comment.content.toLowerCase().includes(kw));
    if (foundConspiracy.length > 0) {
@@ -175,7 +175,7 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
      });
    }
 
-   // Heuristic 11: Propaganda keywords (anti-West, social division)
+   
    const propagandaKeywords = ['zachód upada', 'wschód siła', 'inflacja', 'kryzys', 'sankcje', 'bieda', 'elity', 'wojna', 'polska', 'tradycja', 'kultura', 'ideologia gender', 'tolerancyjna utopia', 'dzieci', 'wartości'];
    const foundPropaganda = propagandaKeywords.filter(kw => comment.content.toLowerCase().includes(kw));
    if (foundPropaganda.length > 0) {
@@ -188,7 +188,7 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
      });
    }
 
-   // Heuristic 12: Name-username mismatch
+   
    const nameParts = comment.authorName.toLowerCase().split(' ');
    const usernameMatches = nameParts.some(part => comment.username.toLowerCase().includes(part));
    if (!usernameMatches && digitCount > 2) {
@@ -201,12 +201,12 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
      });
    }
 
-   // Special handling for troll account
+   
    if (comment.authorName === 'Patriotyczny Kowal') {
      reasons.push('Konto postuje głównie w tematach związanych z manipulacją społeczną (np. wojna na Ukrainie, inflacja, elity)');
      label = 'Troll';
    } else {
-     // Determine label based on score
+     
      if (score >= 60) {
        label = 'Bot';
      } else if (score >= 30) {
@@ -224,14 +224,14 @@ const analyzeBotPatterns = (comment: Comment, allComments: Comment[]): Analysis 
    };
 };
 
-// Mock data generator
+
 const generateMockData = (): { posts: { post: Post; comments: Comment[] }[] } => {
   const postsData = [
     {
       post: {
         id: '1',
         author: 'Jan Kowalski',
-        avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect fill="%234267B2" width="40" height="40"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="20" font-family="Arial"%3EJK%3C/text%3E%3C/svg%3E',
+        avatar: 'data:image/svg+xml,%3Csvg xmlns="http:
         content: '🚨 Alarm! WIELKI RESET już tu jest! 🚨\nCzy zauważyliście, jak nagle wszyscy mówią to samo? To nie przypadek! Rządy i korporacje pracują razem, żeby nas kontrolować! Nowe "ekologiczne" przepisy to tylko pretekst do ograniczenia naszej wolności i nakazania, co mamy jeść, gdzie jeździć, a nawet co myśleć! Obudźcie się, zanim będzie za późno! Dzielcie się, żeby prawda wyszła na jaw! #WielkiReset #Wolność #Prawda #Spisek',
         createdAt: '2025-10-04T10:30:00Z',
         reactions: 127,
@@ -239,7 +239,7 @@ const generateMockData = (): { posts: { post: Post; comments: Comment[] }[] } =>
         shares: 12
       },
       mockComments: [
-        { id: '1', authorName: 'Marek Nowak', username: 'marek.nowak12345', avatarMissing: true, createdAt: '2025-09-15T10:32:00Z', content: 'PILNE! Wielki reset już tu jest! Kliknij natychmiast ten link i zobacz tajne dowody! https://fake-conspiracy-site.com' },
+        { id: '1', authorName: 'Marek Nowak', username: 'marek.nowak12345', avatarMissing: true, createdAt: '2025-09-15T10:32:00Z', content: 'PILNE! Wielki reset już tu jest! Kliknij natychmiast ten link i zobacz tajne dowody! https:
         { id: '2', authorName: 'Patriotyczny Kowal', username: 'patriot_kowal', avatarMissing: false, createdAt: '2024-05-04T10:35:00Z', content: 'Zachód upada, inflacja rośnie.' },
         { id: '3', authorName: 'Janusz Kowalski', username: 'janusz.kowalski', avatarMissing: false, createdAt: '2024-12-04T10:36:00Z', content: 'Teoria spiskowa? Może, ale ceny rzeczywiście rosną. Co sądzicie o nowych przepisach ekologicznych?' },
         { id: '4', authorName: 'Maria Kowalczyk', username: 'maria.kow', avatarMissing: false, createdAt: '2025-10-04T10:38:00Z', content: 'Warto dbać o zdrowie i regularnie się badać.' },
@@ -275,7 +275,7 @@ const generateMockData = (): { posts: { post: Post; comments: Comment[] }[] } =>
       post: {
         id: '2',
         author: 'Marek Zieliński',
-        avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect fill="%23E53E3E" width="40" height="40"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="20" font-family="Arial"%3EMZ%3C/text%3E%3C/svg%3E',
+        avatar: 'data:image/svg+xml,%3Csvg xmlns="http:
         content: '🚨 Pilne! Ukraina atakuje Rosję bez powodu! 🚨\nZachód zmusza Ukrainę do wojny, żeby osłabić Rosję! To prowokacja NATO! Rosja broni się przed agresją! Zobaczcie te zdjęcia zniszczeń - to wszystko kłamstwo mediów! Udostępnijcie prawdę! #Wojna #Ukraina #Rosja #Prawda',
         createdAt: '2025-10-04T12:00:00Z',
         reactions: 89,
@@ -299,7 +299,7 @@ const generateMockData = (): { posts: { post: Post; comments: Comment[] }[] } =>
       post: {
         id: '3',
         author: 'Dr. Zdrowie Naturalne',
-        avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect fill="%2338A169" width="40" height="40"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="16" font-family="Arial"%3EDZN%3C/text%3E%3C/svg%3E',
+        avatar: 'data:image/svg+xml,%3Csvg xmlns="http:
         content: '❗ Lekarze ukrywają prawdę o raku! ❗\nRak można wyleczyć w 2 tygodnie naturalnymi metodami! Big Pharma nie chce, żebyście wiedzieli o soku z buraków i kurkumie! Ich chemioterapia to biznes śmierci! Wypróbujcie i podzielcie się wynikami! #Zdrowie #Rak #NaturalneLeczenie #BigPharma',
         createdAt: '2025-10-04T14:00:00Z',
         reactions: 156,
@@ -323,7 +323,7 @@ const generateMockData = (): { posts: { post: Post; comments: Comment[] }[] } =>
       post: {
         id: '4',
         author: 'Patriot Polski',
-        avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect fill="%23D69E2E" width="40" height="40"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="16" font-family="Arial"%3EPP%3C/text%3E%3C/svg%3E',
+        avatar: 'data:image/svg+xml,%3Csvg xmlns="http:
         content: '🚨 Imigranci niszczą nasz kraj! 🚨\nTysiące imigrantów przybywają codziennie, zabierają nasze mieszkania, pracę i zasiłki! Rząd ich wspiera, a nas ignoruje! To koniec Polski jaką znamy! Bronić granic! #Polska #Imigracja #Patriotyzm #Granice',
         createdAt: '2025-10-04T16:00:00Z',
         reactions: 203,
@@ -347,7 +347,7 @@ const generateMockData = (): { posts: { post: Post; comments: Comment[] }[] } =>
       post: {
         id: '5',
         author: 'News Flash',
-        avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect fill="%236B46C1" width="40" height="40"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="16" font-family="Arial"%3ENF%3C/text%3E%3C/svg%3E',
+        avatar: 'data:image/svg+xml,%3Csvg xmlns="http:
         content: '😱 SZOK! Celebryta X zdradza sekrety Hollywood! 😱\nZobacz co się stało za kulisami! To niewiarygodne! Filmiki, które wszyscy oglądają! Kliknij link i zobacz na własne oczy! Nie uwierzysz! #Hollywood #Celebryci #Sekrety #Szok',
         createdAt: '2025-10-04T18:00:00Z',
         reactions: 312,
@@ -371,7 +371,7 @@ const generateMockData = (): { posts: { post: Post; comments: Comment[] }[] } =>
       post: {
         id: '6',
         author: 'Polityk Prawdziwy',
-        avatar: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect fill="%23E53E3E" width="40" height="40"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="16" font-family="Arial"%3EPP%3C/text%3E%3C/svg%3E',
+        avatar: 'data:image/svg+xml,%3Csvg xmlns="http:
         content: '🚨 Rząd wprowadza nowe podatki! Wszystko co zarabiasz zabiorą! 🚨\nNowe ustawy podatkowe to kradzież w biały dzień! Bogaci się bogacą, a my płacimy! To koniec klasy średniej! Protestujcie! #Podatki #Rząd #Kradzież #Protest',
         createdAt: '2025-10-04T20:00:00Z',
         reactions: 178,
@@ -405,7 +405,7 @@ const generateMockData = (): { posts: { post: Post; comments: Comment[] }[] } =>
   return { posts };
 };
 
-// Main component
+
 const FacebookPostView: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedComment, setExpandedComment] = useState<string | null>(null);
@@ -413,7 +413,7 @@ const FacebookPostView: React.FC = () => {
   const [isPostSelectorVisible, setIsPostSelectorVisible] = useState(false);
   const [selectedPostIndex, setSelectedPostIndex] = useState(0);
 
-  // Simulate loading
+  
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 500);
     return () => clearTimeout(timer);
@@ -423,19 +423,19 @@ const FacebookPostView: React.FC = () => {
   const currentPostIndex = isPostSelectorVisible ? selectedPostIndex : 0;
   const { post, comments: rawComments } = posts[currentPostIndex];
 
-  // Conditionally run analysis
+  
   const comments = rawComments.map(comment => ({
     ...comment,
     analysis: isDetectionEnabled ? analyzeBotPatterns(comment, rawComments) : { label: 'OK' as const, score: 0, reasons: [], evidence: [] }
   }));
 
-  // Calculate statistics
+  
   const botCount = comments.filter(c => c.analysis.label === 'Bot').length;
   const suspiciousCount = comments.filter(c => c.analysis.label === 'Podejrzany').length;
   const trollCount = comments.filter(c => c.analysis.label === 'Troll').length;
   const averageScore = Math.round(comments.reduce((sum, c) => sum + c.analysis.score, 0) / comments.length);
 
-  // Find most repeated content
+  
   const contentCounts = comments.reduce((acc, c) => {
     acc[c.content] = (acc[c.content] || 0) + 1;
     return acc;
@@ -485,7 +485,6 @@ const getBadgeIcon = (label: string) => {
 
   return (
     <div className="min-h-screen bg-gray-100 relative">
-      {/* Hidden toggle button for bot detection */}
       <button
         onClick={() => setIsDetectionEnabled(!isDetectionEnabled)}
         className="absolute top-4 right-4 opacity-0 hover:opacity-100 transition-opacity bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs"
@@ -494,7 +493,6 @@ const getBadgeIcon = (label: string) => {
         Toggle Detection
       </button>
 
-      {/* Hidden toggle button for post selector */}
       <button
         onClick={() => setIsPostSelectorVisible(!isPostSelectorVisible)}
         className="absolute top-4 left-4 opacity-0 hover:opacity-100 transition-opacity bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs"
@@ -503,7 +501,6 @@ const getBadgeIcon = (label: string) => {
         Toggle Selector
       </button>
 
-      {/* Post selector */}
       {isPostSelectorVisible && (
         <div className="flex justify-center gap-2 py-4 bg-white border-b">
           {posts.map((_, index) => (
@@ -520,11 +517,8 @@ const getBadgeIcon = (label: string) => {
 
       <div className={`${isDetectionEnabled ? 'max-w-7xl' : 'max-w-4xl'} mx-auto px-4 py-6`}>
         <div className="flex gap-6">
-          {/* Main content */}
           <div className="flex-1">
-            {/* Post card */}
             <div className="bg-white rounded-lg shadow mb-4">
-              {/* Post header */}
               <div className="p-4 border-b">
                 <div className="flex items-center gap-3">
                   <img
@@ -541,12 +535,10 @@ const getBadgeIcon = (label: string) => {
                 </div>
               </div>
 
-              {/* Post content */}
               <div className="p-4">
                 <p className="text-gray-900 whitespace-pre-line">{post.content}</p>
               </div>
 
-              {/* Post stats */}
               <div className="px-4 py-2 border-y text-sm text-gray-500 flex justify-between">
                 <span>{post.reactions} reakcji</span>
                 <div className="flex gap-4">
@@ -555,7 +547,6 @@ const getBadgeIcon = (label: string) => {
                 </div>
               </div>
 
-              {/* Post actions */}
               <div className="px-4 py-2 flex justify-around border-b">
                 <button className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded transition">
                   <ThumbsUp className="w-5 h-5" />
@@ -571,7 +562,6 @@ const getBadgeIcon = (label: string) => {
                 </button>
               </div>
 
-              {/* Comments section */}
               <div className="p-4">
                 <h3 className="font-semibold text-gray-900 mb-4">Komentarze</h3>
                 <div className="space-y-4">
@@ -624,7 +614,6 @@ const getBadgeIcon = (label: string) => {
                            )}
                          </div>
 
-                          {/* Expanded analysis */}
                           {expandedComment === comment.id && isDetectionEnabled && (
                            <div className="mt-3 p-3 bg-white border rounded-lg shadow-sm">
                              <h5 className="font-semibold text-sm mb-2">Analiza wykrycia:</h5>
@@ -660,7 +649,6 @@ const getBadgeIcon = (label: string) => {
             </div>
            </div>
 
-           {/* Statistics sidebar */}
            {isDetectionEnabled && (
              <div className="w-80 flex-shrink-0">
             <div className="bg-white rounded-lg shadow p-4 sticky top-6">
@@ -670,7 +658,6 @@ const getBadgeIcon = (label: string) => {
               </h3>
 
               <div className="space-y-4">
-                {/* Summary stats */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <div className="text-2xl font-bold text-gray-900">{comments.length}</div>
@@ -694,7 +681,6 @@ const getBadgeIcon = (label: string) => {
                   </div>
                 </div>
 
-                {/* Distribution */}
                 <div>
                   <h4 className="text-sm font-semibold mb-2">Rozkład wykryć:</h4>
                   <div className="space-y-2">
@@ -745,7 +731,6 @@ const getBadgeIcon = (label: string) => {
                   </div>
                 </div>
 
-                {/* Top repeated content */}
                 {topRepeated.length > 0 && (
                   <div>
                     <h4 className="text-sm font-semibold mb-2">Powtarzające się treści:</h4>
@@ -764,7 +749,6 @@ const getBadgeIcon = (label: string) => {
                   </div>
                 )}
 
-                {/* Detection methods info */}
                 <div className="pt-4 border-t">
                   <h4 className="text-sm font-semibold mb-2">Metody wykrywania:</h4>
                   <ul className="text-xs text-gray-600 space-y-1">
